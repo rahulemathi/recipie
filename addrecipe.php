@@ -1,5 +1,9 @@
 <?php 
 require_once './config.php';
+if(empty($_SESSION['user_id'])){
+    header('Location: login.php');
+    exit;
+}
 
 
 if(isset($_POST['submit'])){
@@ -19,38 +23,33 @@ if(isset($_POST['submit'])){
 
     $check = getimagesize($_FILES["image"]["tmp_name"]);
     if($check !== false) {
-      echo "File is an image - " . $check["mime"] . ".";
       $uploadOk = 1;
     } else {
-      echo "File is not an image.";
       $uploadOk = 0;
     }
     
 
     if (file_exists($target_file)) {
-        echo "Sorry, file already exists.";
         $uploadOk = 0;
       }
 
       if($imageFileType != "jpg" && $imageFileType != "png" && $imageFileType != "jpeg"
 && $imageFileType != "gif" ) {
-  echo "Sorry, only JPG, JPEG, PNG & GIF files are allowed.";
   $uploadOk = 0;
 }
 
 if ($uploadOk == 0) {
-    echo "Sorry, your file was not uploaded.";
   // if everything is ok, try to upload file
   } else {
     if (move_uploaded_file($_FILES["image"]["tmp_name"], $target_file)) {
-      echo "The file ". htmlspecialchars( basename( $_FILES["image"]["name"])). " has been uploaded.";
     } else {
-      echo "Sorry, there was an error uploading your file.";
+      // upload failed
     }
   }
     
 
-    $sql = "INSERT INTO recipe (image, title, description, time, tag, instructions, ingredients, tools) VALUES('$image', '$title', '$description', '$time','$tag', '$instruction', '$ingredients', '$tools')";
+    $userId = (int)$_SESSION['user_id'];
+    $sql = "INSERT INTO recipe (user_id, image, title, description, time, tag, instructions, ingredients, tools) VALUES('$userId', '$image', '$title', '$description', '$time','$tag', '$instruction', '$ingredients', '$tools')";
     if(mysqli_query($link,$sql)){
         echo "recipe added successfully";
         header("location: index.php");
@@ -72,18 +71,95 @@ if ($uploadOk == 0) {
 </head>
 <body>
 <?php include('./includes/navbar.php');?>
-    <form action="" method="POST" enctype="multipart/form-data" class="adding">
-        <input type="file" name="image" placeholder="insert image">
-        <input type="text" name="title" placeholder="title">
-        <textarea type="text" name="description" placeholder="description" rows="4"></textarea>
-        <input type="text" name="time" placeholder="prepration time, cooking time, serving">
-        <input type="text" name="tag" placeholder="add tags">
-        <textarea type="text" name="instruction" placeholder="add instructions" rows="4"></textarea>
-        <input type="text" name="ingredients" placeholder="add ingredients">
-        <input type="text" name="tools" placeholder="add tools">
-        <input type="submit" name="submit" class="btn">
-    </form>
+  <main class="page">
+    <section class="contact-container">
+      <article class="contact-info" style="max-width:800px;margin:0 auto;width:100%;">
+        <h3>Add a new recipe</h3>
+        <form action="" method="POST" enctype="multipart/form-data" class="form contact-form" id="recipeForm">
+          <div class="form-row">
+            <label for="image" class="form-label">Recipe image</label>
+            <input type="file" id="image" name="image" class="form-input" accept="image/*" required />
+          </div>
 
-    <?php include('./includes/footer.php');?>
+          <div class="form-row" id="imagePreviewRow" style="display:none;">
+            <label class="form-label">Preview</label>
+            <div class="image-preview" style="display:flex;align-items:center;gap:1rem;">
+              <img id="imagePreview" src="" alt="preview" style="max-width:180px;border-radius:0.25rem;display:block;" />
+              <button type="button" class="btn" id="removeImageBtn">Remove</button>
+            </div>
+          </div>
+
+          <div class="form-row">
+            <label for="title" class="form-label">Title</label>
+            <input type="text" id="title" name="title" class="form-input" placeholder="Recipe title" required />
+          </div>
+
+          <div class="form-row">
+            <label for="description" class="form-label">Description</label>
+            <textarea id="description" name="description" class="form-textarea" placeholder="Short description" rows="4" required></textarea>
+          </div>
+
+          <div class="form-row">
+            <label for="time" class="form-label">Times</label>
+            <input type="text" id="time" name="time" class="form-input" placeholder="prep, cook, servings (e.g. 15, 30, 4)" required />
+          </div>
+
+          <div class="form-row">
+            <label for="tag" class="form-label">Tags</label>
+            <input type="text" id="tag" name="tag" class="form-input" placeholder="comma separated tags" />
+          </div>
+
+          <div class="form-row">
+            <label for="instruction" class="form-label">Instructions</label>
+            <textarea id="instruction" name="instruction" class="form-textarea" placeholder="Step by step instructions (use commas to separate)" rows="6" required></textarea>
+          </div>
+
+          <div class="form-row">
+            <label for="ingredients" class="form-label">Ingredients</label>
+            <input type="text" id="ingredients" name="ingredients" class="form-input" placeholder="comma separated ingredients" required />
+          </div>
+
+          <div class="form-row">
+            <label for="tools" class="form-label">Tools</label>
+            <input type="text" id="tools" name="tools" class="form-input" placeholder="comma separated tools" />
+          </div>
+
+          <button type="submit" name="submit" class="btn">Add Recipe</button>
+        </form>
+      </article>
+    </section>
+  </main>
+
+  <script>
+  (function(){
+    var fileInput = document.getElementById('image');
+    var previewImg = document.getElementById('imagePreview');
+    var previewRow = document.getElementById('imagePreviewRow');
+    var removeBtn = document.getElementById('removeImageBtn');
+    if(!fileInput || !previewImg || !previewRow || !removeBtn) return;
+
+    fileInput.addEventListener('change', function(e){
+      var file = e.target.files && e.target.files[0];
+      if(!file){
+        previewRow.style.display = 'none';
+        return;
+      }
+      var reader = new FileReader();
+      reader.onload = function(ev){
+        previewImg.src = ev.target.result;
+        previewRow.style.display = 'block';
+      };
+      reader.readAsDataURL(file);
+    });
+
+    removeBtn.addEventListener('click', function(){
+      fileInput.value = '';
+      previewImg.src = '';
+      previewRow.style.display = 'none';
+    });
+  })();
+  </script>
+
+  <?php include('./includes/footer.php');?>
 </body>
 </html>

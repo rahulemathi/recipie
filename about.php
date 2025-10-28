@@ -1,3 +1,4 @@
+<?php require_once './config.php'; ?>
 <!DOCTYPE html>
 <html lang="en">
   <head>
@@ -35,39 +36,20 @@
       <section class="featured-recipes">
         <h5 class="featured-title">Look At This Awesomesouce!</h5>
         <div class="recipes-list">
-          <!-- single recipe -->
-          <a href="single-recipe.php" class="recipe">
-            <img
-              src="./assets/recipes/recipe-1.jpeg"
-              class="img recipe-img"
-              alt=""
-            />
-            <h5>Mutton</h5>
-            <p>Prep : 15min | Cook : 5min</p>
+          <?php 
+          $result = mysqli_query($link, "SELECT id, image, title, time FROM recipe ORDER BY id DESC LIMIT 3");
+          if($result && mysqli_num_rows($result) > 0){
+            while($r = mysqli_fetch_assoc($result)){
+              $t = explode(',', $r['time']);
+          ?>
+          <a href="single-recipe.php?id=<?php echo (int)$r['id']; ?>" class="recipe">
+            <img src="./assets/recipes/<?php echo htmlspecialchars($r['image']); ?>" class="img recipe-img" alt="" />
+            <h5><?php echo htmlspecialchars($r['title']); ?></h5>
+            <p>Prep : <?php echo htmlspecialchars($t[0] ?? ''); ?>min | Cook : <?php echo htmlspecialchars($t[1] ?? ''); ?>min</p>
           </a>
-          <!-- end of single recipe -->
-          <!-- single recipe -->
-          <a href="single-recipe.php" class="recipe">
-            <img
-              src="./assets/recipes/recipe-2.jpeg"
-              class="img recipe-img"
-              alt=""
-            />
-            <h5>Greek Ribs</h5>
-            <p>Prep : 15min | Cook : 5min</p>
-          </a>
-          <!-- end of single recipe -->
-          <!-- single recipe -->
-          <a href="single-recipe.php" class="recipe">
-            <img
-              src="./assets/recipes/recipe-3.jpeg"
-              class="img recipe-img"
-              alt=""
-            />
-            <h5>Vegetable Soup</h5>
-            <p>Prep : 15min | Cook : 5min</p>
-          </a>
-          <!-- end of single recipe -->
+          <?php }
+          }
+          ?>
         </div>
       </section>
     </main>

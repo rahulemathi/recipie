@@ -68,6 +68,56 @@ ALTER TABLE `recipe`
 --
 ALTER TABLE `recipe`
   MODIFY `id` int(10) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=7;
+
+--
+-- Ownership: add user_id to recipe and index
+--
+ALTER TABLE `recipe`
+  ADD COLUMN `user_id` int(10) UNSIGNED NULL AFTER `id`;
+ALTER TABLE `recipe`
+  ADD INDEX `idx_recipe_user_id` (`user_id`);
+
+-- (Optional) If FK constraints are desired and supported in environment, uncomment:
+-- ALTER TABLE `recipe` ADD CONSTRAINT `fk_recipe_user` FOREIGN KEY (`user_id`) REFERENCES `users`(`id`) ON DELETE SET NULL;
+
+-- --------------------------------------------------------
+
+--
+-- Table structure for table `users`
+--
+
+CREATE TABLE IF NOT EXISTS `users` (
+  `id` int(10) UNSIGNED NOT NULL AUTO_INCREMENT,
+  `name` varchar(150) NOT NULL,
+  `email` varchar(255) NOT NULL,
+  `password_hash` varchar(255) NOT NULL,
+  `created_at` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  `updated_at` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+  PRIMARY KEY (`id`),
+  UNIQUE KEY `uniq_users_email` (`email`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+
+-- --------------------------------------------------------
+
+--
+-- Table structure for `comments`
+--
+
+CREATE TABLE IF NOT EXISTS `comments` (
+  `id` int(10) UNSIGNED NOT NULL AUTO_INCREMENT,    
+  `recipe_id` int(10) UNSIGNED NOT NULL,
+  `user_id` int(10) UNSIGNED NOT NULL,
+  `content` varchar(1000) NOT NULL,
+  `created_at` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  PRIMARY KEY (`id`),
+  KEY `idx_comments_recipe_id` (`recipe_id`),
+  KEY `idx_comments_user_id` (`user_id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+
+-- (Optional) foreign keys, uncomment if desired
+-- ALTER TABLE `comments` ADD CONSTRAINT `fk_comments_recipe` FOREIGN KEY (`recipe_id`) REFERENCES `recipe`(`id`) ON DELETE CASCADE;
+-- ALTER TABLE `comments` ADD CONSTRAINT `fk_comments_user` FOREIGN KEY (`user_id`) REFERENCES `users`(`id`) ON DELETE CASCADE;
+
 COMMIT;
 
 /*!40101 SET CHARACTER_SET_CLIENT=@OLD_CHARACTER_SET_CLIENT */;

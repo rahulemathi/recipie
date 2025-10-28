@@ -29,17 +29,17 @@ require_once './config.php'
             </p>
           </article>
           <article>
-            <form class="form contact-form">
+            <form class="form contact-form" method="POST" action="">
               <div class="form-row">
-                <label html="name" class="form-label">your name</label>
+                <label for="name" class="form-label">your name</label>
                 <input type="text" name="name" id="name" class="form-input" />
               </div>
               <div class="form-row">
-                <label html="email" class="form-label">your email</label>
+                <label for="email" class="form-label">your email</label>
                 <input type="text" name="email" id="email" class="form-input" />
               </div>
               <div class="form-row">
-                <label html="message" class="form-label">message</label>
+                <label for="message" class="form-label">message</label>
                 <textarea name="message" id="message" class="form-textarea"></textarea>
               </div>
               <button type="submit" class="btn btn-block">
@@ -54,7 +54,7 @@ require_once './config.php'
         <div class="recipes-list">
           <!-- single recipe -->
           <?php 
-          $sql = "SELECT * FROM recipe limit";
+          $sql = "SELECT * FROM recipe ORDER BY id DESC LIMIT 3";
 
           if($result = mysqli_query($link,$sql)){
             if(mysqli_num_rows($result)>0){

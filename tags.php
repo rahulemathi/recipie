@@ -1,5 +1,19 @@
 <?php 
 require_once './config.php';
+// Build dynamic tags with counts from recipe.tag CSV
+$tags = [];
+$res = mysqli_query($link, "SELECT tag FROM recipe");
+if($res){
+  while($row = mysqli_fetch_assoc($res)){
+    $parts = array_filter(array_map('trim', explode(',', $row['tag'])));
+    foreach($parts as $p){
+      $k = strtolower($p);
+      if(!isset($tags[$k])) $tags[$k] = 0;
+      $tags[$k]++;
+    }
+  }
+}
+ksort($tags);
 ?>
 <!DOCTYPE html>
 <html lang="en">
@@ -15,37 +29,13 @@ require_once './config.php';
      <?php include('./includes/navbar.php');?>
     <!-- end of nav -->
     <main class="page">
-         <section class="tags-wrapper">
-          <!-- single tag -->
-              <a href="tag-template.php?tag=mutton" class="tag">
-                <h5>mutton</h5>
-                <p>1 recipe</p>
-              </a>
-            <!-- end of single tag -->
-          <!-- single tag -->
-              <a href="tag-template.php?tag=breakfast" class="tag">
-                <h5>breakfast</h5>
-                <p>2 recipe</p>
-              </a>
-            <!-- end of single tag -->
-          <!-- single tag -->
-              <a href="tag-template.php?tag=carrot" class="tag">
-                <h5>carrots</h5>
-                <p>3 recipe</p>
-              </a>
-            <!-- end of single tag -->
-          <!-- single tag -->
-              <a href="tag-template.php?tag=dinner" class="tag">
-                <h5>dinner</h5>
-                <p>4 recipe</p>
-              </a>
-            <!-- end of single tag -->
-          <!-- single tag -->
-              <a href="tag-template.php" class="tag">
-                <h5>food</h5>
-                <p>1 recipe</p>
-              </a>
-            <!-- end of single tag -->
+        <section class="tags-wrapper">
+          <?php foreach($tags as $tagName => $count): ?>
+            <a href="tag-template.php?tag=<?php echo urlencode($tagName); ?>" class="tag">
+              <h5><?php echo htmlspecialchars($tagName); ?></h5>
+              <p><?php echo (int)$count; ?> recipe<?php echo $count==1?'':'s'; ?></p>
+            </a>
+          <?php endforeach; ?>
         </section>
     </main>
     <!-- footer -->

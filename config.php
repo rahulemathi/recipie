@@ -9,4 +9,9 @@ $link = new mysqli($server, $username, $password,$db);
 if ($link->connect_error) {
     die("Connection failed: " . $link->connect_error);
   }
+
+// Start session for authentication if not already started
+if (session_status() === PHP_SESSION_NONE) {
+    session_start();
+}
 ?>

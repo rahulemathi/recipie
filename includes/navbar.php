@@ -14,9 +14,19 @@
           <a href="tags.php" class="nav-link"> tags </a>
           <a href="recipes.php" class="nav-link"> recipes </a>
 
-          <div class="nav-link contact-link">
-            <a href="contact.php" class="btn"> contact </a>
-          </div>
+          <?php if(!empty($_SESSION['user_id'])): ?>
+            <span class="nav-link">Hello, <?php echo htmlspecialchars($_SESSION['user_name']); ?></span>
+            <a href="addrecipe.php" class="nav-link"> add recipe </a>
+            <a href="my-recipes.php" class="nav-link"> my recipes </a>
+            <div class="nav-link contact-link">
+              <a href="logout.php" class="btn"> logout </a>
+            </div>
+          <?php else: ?>
+            <a href="login.php" class="nav-link"> login </a>
+            <div class="nav-link contact-link">
+              <a href="register.php" class="btn"> register </a>
+            </div>
+          <?php endif; ?>
         </div>
       </div>
     </nav>

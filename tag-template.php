@@ -1,8 +1,12 @@
 <?php 
 require_once './config.php';  
-$sql = "SELECT * FROM recipe ";
-      
-  
+$activeTag = strtolower(trim($_GET['tag'] ?? ''));
+$sql = "SELECT * FROM recipe";
+if($activeTag !== ''){
+  // match CSV tags case-insensitively
+  $safe = mysqli_real_escape_string($link, $activeTag);
+  $sql .= " WHERE LOWER(tag) LIKE '%".$safe."%'";
+}
 ?>
 <!DOCTYPE html>
 <html lang="en">
@@ -19,7 +23,7 @@ $sql = "SELECT * FROM recipe ";
     <!-- end of nav -->
     <main class="page">
       <div class="featured-recipes">
-        <!-- <h4><?php echo $tag;?></h4> -->
+        <h4><?php echo $activeTag !== '' ? htmlspecialchars($activeTag) : 'All';?></h4>
           <!-- recipes list -->
         <div class="recipes-list">
           <!-- single recipe -->
@@ -35,7 +39,7 @@ $sql = "SELECT * FROM recipe ";
               class="img recipe-img"
               alt=""
             />
-            <h5>Carne Asada</h5>
+            <h5><?php echo htmlspecialchars($row['title']);?></h5>
             <p>Prep : <?php echo $time[0];?> min | Cook : <?php echo $time[1];?> min</p>
           </a>
        <?php }
